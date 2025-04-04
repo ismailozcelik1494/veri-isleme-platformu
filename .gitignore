@@ -1,0 +1,21 @@
+# Büyük dosyalar
+docker_volumes_backup/
+**/dataset/
+*.pkl
+*.parquet
+*.csv
+*.zip
+*.tar
+*.gz
+*.jar
+*.exe
+*.tgz
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+logs/
+*.log

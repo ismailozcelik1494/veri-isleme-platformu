@@ -1,0 +1,9 @@
+LICENSE
+README
+_re2.cc
+setup.py
+google_re2.egg-info/PKG-INFO
+google_re2.egg-info/SOURCES.txt
+google_re2.egg-info/dependency_links.txt
+google_re2.egg-info/top_level.txt
+re2/__init__.py
