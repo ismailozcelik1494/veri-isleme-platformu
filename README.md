@@ -26,7 +26,7 @@ Bu proje, Docker konteynerlerinde çalışan Apache Airflow, Apache Spark, Redis
 ## 📁 Proje Yapısı
 
 ```
-ISMAILOZCELIK-DOCKER/
+veri-isleme-platformu/
 ├── _archive/                               # Arşivlenmiş eski dosyalar
 |   |__ dependencies
 │   |   ├── __pycache__/                   # Python için gerekli kütüphaneler
@@ -109,37 +109,44 @@ docker --version
 docker-compose --version
 ```
 
-### 2. Proje Dizini Oluşturma ve Dosyaları Hazırlama
+### 2. Proje Dosyalarını İndirme
+
+Proje dosyalarını GitHub'dan indirin:
 ```bash
-mkdir ismailozcelik-docker
-cd ismailozcelik-docker
+git clone https://github.com/ismailozcelik1494/veri-isleme-platformu.git
+cd veri-isleme-platformu
 ```
 
-### 3. Docker Compose ile Airflow Kurulumu
+### 3. Ek Dosyaları Temin Etme ve Yerleştirme
 
-Airflow Docker Compose dosyasını indirin:
+Veri işleme scriptimizin çalışması için aşağıdaki ek dosyaları temin edin:
+
+Dosya URL Adresi: https://drive.google.com/drive/folders/1T4adePHhfxHvWVZs52Nk89SFRAwFmPfv
+
+**Ana dizine aktarılacak klasörler:**
+- "app", "backups" ve "logs" dosyalarını "veri-isleme-platformu" ana dizinine aktarın.
+
+**"ek-dosyalar" klasöründeki dosyalar aşağıdaki yerlere kopyalanmalıdır:**
+- `slack.py` dosyası: `/airflow/providers/slack/src/airflow/providers/slack/hooks/` dizinine
+- `slack.rst` dosyası: `/airflow/providers/slack/docs/connections/` dizinine
+- `test_slack.py` dosyası: `/airflow/providers/slack/tests/unit/slack/hooks/` dizinine
+
+**"_archive" klasörü:**
+- "old-setups" dosyasını "_archive" dizininin içerisine kopyalayın.
+
+### 4. Veritabanı ve Volume Yedeklerini Geri Yükleme
+
+İşletim sisteminize göre ilgili dosyayı çalıştırın:
+- Windows için: `restore_volumes.bat`
+- Mac/Linux için: `restore_volumes.sh`
+
+Bu işlem, "backups/docker_volumes_backup" altındaki veritabanı ve container verilerini sisteme yükleyecektir.
+
+### 5. Servisleri Başlatma
+
+Tüm servisleri başlatmak için:
 ```bash
-curl 'https://airflow.apache.org/docs/apache-airflow/2.10.5/docker-compose.yaml' -o 'docker-compose.yaml'
-```
-
-Gerekli dizinleri oluşturun:
-```bash
-mkdir dags logs plugins
-```
-
-### 4. Airflow Servislerini Başlatma
-
-```bash
-# Airflow'u başlatın
-docker compose up airflow-init
-docker compose up -d
-```
-
-### 5. Yeni Docker Compose Dosyası ile Ek Servisleri Başlatma
-
-Yeni servisleri (PgAdmin, Spark Master, Spark Worker, MinIO) içeren yeni-docker-compose.yaml dosyasını çalıştırın:
-```bash
-docker-compose -f yeni-docker-compose.yaml up -d
+docker-compose up -d
 ```
 
 ### 6. Servislere Erişim Bilgileri
@@ -214,26 +221,26 @@ FROM temp_person_data;
 
 ```bash
 # PostgreSQL JDBC sürücüsünü kopyalama
-docker cp ./postgresql-42.7.5.jar ismailozcelik-docker-spark-master-1:/tmp/
+docker cp ./postgresql-42.7.5.jar veri-isleme-platformu-spark-master-1:/tmp/
 
 # Spark işleme dosyasını kopyalama
-docker cp ./spark_job.py ismailozcelik-docker-spark-master-1:/tmp/
+docker cp ./spark_job.py veri-isleme-platformu-spark-master-1:/tmp/
 
 # Spark job'unu çalıştırma
-docker exec -it ismailozcelik-docker-spark-master-1 spark-submit --master spark://ismailozcelik-docker-spark-master-1:7077 --jars "/tmp/postgresql-42.7.5.jar" /tmp/spark_job.py
+docker exec -it veri-isleme-platformu-spark-master-1 spark-submit --master spark://veri-isleme-platformu-spark-master-1:7077 --jars "/tmp/postgresql-42.7.5.jar" /tmp/spark_job.py
 ```
 
 ### 11. Airflow DAG Dosyasını Konteynere Kopyalama
 
 ```bash
-docker cp ./my_airflow_dag.py ismailozcelik-docker-airflow-webserver-1:/opt/airflow/dags/
+docker cp ./my_airflow_dag.py veri-isleme-platformu-airflow-webserver-1:/opt/airflow/dags/
 ```
 
 ### 12. Hata Yönetimi Dosyasını Konteynere Kopyalama
 
 ```bash
-docker cp ./error_handling.py ismailozcelik-docker-spark-master-1:/tmp/
-docker exec -it ismailozcelik-docker-spark-master-1 spark-submit --master spark://ismailozcelik-docker-spark-master-1:7077 /tmp/error_handling.py
+docker cp ./error_handling.py veri-isleme-platformu-spark-master-1:/tmp/
+docker exec -it veri-isleme-platformu-spark-master-1 spark-submit --master spark://veri-isleme-platformu-spark-master-1:7077 /tmp/error_handling.py
 ```
 
 ### 13. Veritabanı Optimizasyonu
